@@ -14,12 +14,14 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run build && probot run ./lib/index.js",
-    "test": "vitest"
+    "test": "vitest",
+    "dryrun": "ts-node src/utils/test.ts"
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2",
     "@server-sent-stream/node": "^1.0.5",
     "axios": "^1.7.7",
+    "parse-diff": "^0.11.1",
     "probot": "^13.0.1"
   },
   "devDependencies": {
@@ -29,7 +31,8 @@
     "nock": "^14.0.0-beta.5",
     "smee-client": "^2.0.0",
     "typescript": "^5.3.3",
-    "vitest": "^1.3.1"
+    "vitest": "^1.3.1",
+    "ts-node": "^10.9.1"
   },
   "engines": {
     "node": ">= 18"

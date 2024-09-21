@@ -1,14 +1,16 @@
 import { Probot } from "probot";
-// import getPRDiff from "./utils/getPrDiff.js";
-// import { createChat } from "./utils/createChat.js";
-// import getPRDetails from "./utils/getPRDetails.js";
-// import { getResponseForPrompt } from "./utils/createChatSession.js";
+import getPRDiff from "./utils/getPrDiff.js";
+import { createChat } from "./utils/createChat.js";
+import parseDiff from "parse-diff";
+import { analyzeCode } from "./utils/analyzeCode.js";
+import { PRDetails, ReviewComment } from "./types/index.js";
 
 export default (app: Probot) => {
-  app.on("issues.opened", async (context) => {
+  app.on("issues", async (context) => {
     const issueComment = context.issue({
       body: "Thanks for opening this issue!",
     });
+    // console.log(analyzeCode(parsedDiff, prDetails))
     await context.octokit.issues.createComment(issueComment);
   });
 
@@ -17,95 +19,43 @@ export default (app: Probot) => {
 
     // const prDetails = await getPRDetails(owner, repo, pull_number, context);
 
-    // const diff = await getPRDiff(owner, repo, pull_number, context);
+    const prDetails: PRDetails = {
+      title: context.payload.pull_request.title,
+      description: context.payload.pull_request.body || "",
+      owner,
+      repo,
+      pull_number,
+      commit_id: context.payload.pull_request.head.sha,
+    };
 
-    // const reviewComments: { path: string; position: number; body: string }[] =
-    //   [];
-    // let reviewBody: string = "Added comments";
+    const diff = await getPRDiff(owner, repo, pull_number, context);
+    const parsedDiff = parseDiff(diff);
 
-    // if (diff) {
-    //   try {
-    //     const chatId = await createChat();
-    //     const aiResponse: any = await getResponseForPrompt(
-    //       chatId,
-    //       prDetails.data.title,
-    //       prDetails.data.body || "",
-    //       diff
-    //     );
-    //     console.log("AI Response:", aiResponse);
-    //     if (aiResponse && aiResponse?.comments.length) {
-    //       aiResponse.comments.forEach((response: any) => {
-    //         const { path, position, body } = response;
-    //         reviewComments.push({
-    //           path,
-    //           position,
-    //           body,
-    //         });
-    //       });
-    //       reviewBody = aiResponse?.reviewBody || reviewBody;
-    //     }
-    //   } catch (error) {
-    //     console.error("Error:", error);
-    //   }
+    let reviewComments: ReviewComment[] = [];
+    let reviewBody: string = "Added comments";
 
-      // if (reviewComments && reviewComments.length) {
-        await context.octokit.pulls.createReview({
-          owner,
-          repo,
-          pull_number,
-          body: "fix your code shitehead",
-          event: "COMMENT",
-          commit_id: context.payload.pull_request.head.sha,
-          comments: [
-            {
-              "path": "README.md",
-              "line": 78,
-              "body": "Consider adding more descriptive comments for each style class. This will help other developers understand the purpose of each style and make future maintenance easier."
-            },
-            {
-              "path": "README.md",
-              "line": 64,
-              "body": "The `teamData` array could be moved to a separate JSON file and imported. This will make the `Team.jsx` file cleaner and separate the data from the component logic."
-            },
-            {
-              "path": "README.md",
-              "line": 80,
-              "body": "It is better to use semantic HTML elements. Replace the `<div>` used for the overlays with `<section>` or `<aside>` to improve accessibility and readability."
-            },
-          ],
-        });
-      // }
-    // }
+    if (diff) {
+      try {
+        const chatId = await createChat();
+        reviewComments = await analyzeCode(parsedDiff, prDetails, chatId);
+        console.log("reviewComments", reviewComments);
+      } catch (error) {
+        console.error("Error:", error);
+      }
 
-    // Post comments on PR
-    // for (const comment of analysis.comments) {
-      // await context.octokit.pulls.createReviewComment({
-      //   owner,
-      //   repo,
-      //   pull_number,
-      //   body: "This is test a comment",
-      //   path: "README.md",
-      //   commit_id: context.payload.pull_request.head.sha,
-      //   line: 78,
-      // });
-      // await context.octokit.pulls.createReviewComment({
-      //   owner,
-      //   repo,
-      //   pull_number,
-      //   body: "This is test a comment 2",
-      //   path: "README.md",
-      //   commit_id: context.payload.pull_request.head.sha,
-      //   line: 64,
-      // });
-      // await context.octokit.pulls.createReviewComment({
-      //   owner,
-      //   repo,
-      //   pull_number,
-      //   body: "This is test a comment 5 fk you",
-      //   path: "README.md",
-      //   commit_id: context.payload.pull_request.head.sha,
-      //   line: 80,
-      // });
-    // }
+      if (reviewComments.length === 0) {
+        reviewBody = "Looks good to me! Great work!";
+      }
+
+      await context.octokit.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        body: reviewBody,
+        event: "COMMENT",
+        commit_id: context.payload.pull_request.head.sha,
+        comments: reviewComments,
+      });
+    }
   });
 };
