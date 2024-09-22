@@ -2,7 +2,7 @@ import { Probot } from "probot";
 import getPRDiff from "./utils/getPrDiff.js";
 import { createChat } from "./utils/createChat.js";
 import parseDiff from "parse-diff";
-import { analyzeCode } from "./utils/analyzeCode.js";
+import { analyzeCode, getReviewBody } from "./utils/analyzeCode.js";
 import { PRDetails, ReviewComment } from "./types/index.js";
 
 export default (app: Probot) => {
@@ -32,19 +32,15 @@ export default (app: Probot) => {
     const parsedDiff = parseDiff(diff);
 
     let reviewComments: ReviewComment[] = [];
-    let reviewBody: string = "Added comments";
+    let reviewBody: string = "Great job on this pull request! The code looks solid, but make sure to cover all edge cases and potential bugs 🕵️‍♂️. One thing though—please ensure unit tests are included; there's no skipping this part! 🧪 It’s essential for maintaining code quality. Keep up the awesome work! 🚀";
 
     if (diff) {
       try {
         const chatId = await createChat();
         reviewComments = await analyzeCode(parsedDiff, prDetails, chatId);
-        console.log("reviewComments", reviewComments);
+        reviewBody = await getReviewBody(chatId);
       } catch (error) {
         console.error("Error:", error);
-      }
-
-      if (reviewComments.length === 0) {
-        reviewBody = "Looks good to me! Great work!";
       }
 
       await context.octokit.pulls.createReview({
