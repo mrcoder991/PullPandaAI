@@ -95,3 +95,21 @@ export const shouldIgnoreFile = (filePath: string = ""): boolean => {
       )
     );
 };
+
+export const convertAppdirectAiResponseBufferToJSON = (bufferString: string): any => {
+  const regex = /data: ({.*?"type":"message\.delta".*?})\n/g;
+
+  const matches = [];
+  let match;
+
+  while ((match = regex.exec(bufferString)) !== null) {
+      try {
+          const data = JSON.parse(match[1]);
+          matches.push(data);
+      } catch (error) {
+          console.error('Invalid JSON:', match[1]); 
+      }
+  }
+
+  return matches;
+}
