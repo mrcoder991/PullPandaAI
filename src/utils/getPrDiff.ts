@@ -1,6 +1,6 @@
 import { Context } from "probot";
 
-const getPRDiff = async (owner: string, repo: string, pull_number: number, context: Context ): Promise<string | undefined> => {
+const getPRDiff = async (owner: string, repo: string, pull_number: number, context: Context<"pull_request"> ): Promise<string> => {
     try {
         const { data } = await context.octokit.pulls.get({
           owner,
@@ -12,8 +12,8 @@ const getPRDiff = async (owner: string, repo: string, pull_number: number, conte
         });
         return String(data);
       } catch (error: any) {
-        console.error(`Error: ${error.status} - ${error.message}`);
-        return;
+        context.log.error(`Error: ${error.status} - ${error.message}`);
+        return "";
     }  
 }
 

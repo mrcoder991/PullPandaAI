@@ -1,19 +1,20 @@
 import axios from "axios";
-import { aiId, baseUrl } from "../constants.js";
 import { HttpMethod } from "../types/index.js";
 import { createConfig } from "./commonUtils.js";
+import { aiId, baseUrl } from "./config.js";
+import { Context } from "probot";
 
 // returns chatId along with chat details
-export const createChat = async () => {
+export const createChat = async (context: Context<"pull_request">) => {
   try {
     const response = await axios.request(
       createConfig({
         url: `${baseUrl}/ai/${aiId}/chats`,
-        method: HttpMethod.POST,
+      method: HttpMethod.POST,
       })
     );
     return response.data.id;
   } catch (error) {
-    console.error("Error:", error);
+    context.log.error("Error:", error);
   }
 };
