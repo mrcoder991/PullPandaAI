@@ -9,6 +9,9 @@ export const reviewCodeAndPostComments = async (
   context: Context<"pull_request">
 ) => {
   const { owner, repo, pull_number } = context.pullRequest();
+  context.log.info(
+    `Reviewing code for PR:, ${context.payload.pull_request.html_url}, title: ${context.payload.pull_request.title}`
+  );
 
   const prDetails: PRDetails = {
     title: context.payload.pull_request.title,
@@ -40,14 +43,27 @@ export const reviewCodeAndPostComments = async (
       context.log.error("Error:", error);
     }
 
-    await context.octokit.pulls.createReview({
-      owner,
-      repo,
-      pull_number,
-      body: reviewBody,
-      event: "COMMENT",
-      commit_id: context.payload.pull_request.head.sha,
-      comments: reviewComments,
-    });
+    try {
+      await context.octokit.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        body: reviewBody,
+        event: "COMMENT",
+        commit_id: context.payload.pull_request.head.sha,
+        comments: reviewComments,
+      });
+    } catch (error) {
+      context.log.error("Error:", error);
+      await context.octokit.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        body: reviewBody,
+        event: "COMMENT",
+        commit_id: context.payload.pull_request.head.sha,
+        comments: [],
+      });
+    }
   }
 };
