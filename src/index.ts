@@ -7,7 +7,7 @@ export default (app: Probot) => {
     await createAndPostWelcomeComment(context);
   });
 
-  app.on("pull_request", async (context) => {
+  app.on("pull_request.opened", async (context) => {
     await reviewCodeAndPostComments(context);
   });
 };
