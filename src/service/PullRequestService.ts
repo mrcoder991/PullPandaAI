@@ -11,7 +11,7 @@ export const reviewCodeAndPostComments = async (
 ) => {
   const { owner, repo, pull_number } = context.pullRequest();
   context.log.info(
-    `Reviewing code for PR: ${context.payload.pull_request.html_url}, title: ${context.payload.pull_request.title}`
+    `Started Review of the PR with title: ${context.payload.pull_request.title} - ${context.payload.pull_request.html_url}`
   );
 
   const repoDetails = await context.octokit.repos.get({
@@ -45,6 +45,9 @@ export const reviewCodeAndPostComments = async (
   if (diff) {
     try {
       const chatId = await createChat(context);
+      context.log.info(
+        `Using chatId: ${chatId} For - ${context.payload.pull_request.html_url}`
+      );
       reviewComments = await analyzeCode(
         parsedDiff,
         prDetails,

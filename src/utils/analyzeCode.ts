@@ -30,7 +30,7 @@ export const analyzeCode = async (
         );
         newComments = createComment(file, parsedAiResponse);
       } catch (error) {
-        context.log.error("Error:", error);
+        context.log.error("While creating comment", JSON.stringify(error));
         continue;
       }
 
