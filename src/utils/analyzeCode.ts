@@ -44,6 +44,6 @@ export const analyzeCode = async (
 
 export const getReviewBody = async (chatId: string, context: Context<"pull_request">): Promise<string> => {
   const prompt =
-    "****(scenario 2)**** Can you please provide an overall analysis of the entire pull request based on the individual file reviews?";
+    "****(scenario 2)**** Can you please provide an overall analysis of the entire pull request based on the individual file reviews? do not repeat the things you already mentioned on the individual file reviews and do not cross 200 words";
   return await getResponseForPrompt(chatId, prompt, context);
 };
