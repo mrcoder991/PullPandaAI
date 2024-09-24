@@ -20,9 +20,12 @@ export const reviewCodeAndPostComments = async (
   });
 
   if (
-    context.payload.pull_request.base.ref !== repoDetails.data.default_branch
+    // Skip review if PR is not against default branch
+    context.payload.pull_request.base.ref !== repoDetails.data.default_branch ||
+    // Skip review if PR is Draft
+    context.payload.pull_request.draft
   ) {
-    context.log.info("PR is not against default branch. Skipping review.");
+    context.log.info("PR is not against default branch or Draft. Skipping review.");
     return;
   }
 
