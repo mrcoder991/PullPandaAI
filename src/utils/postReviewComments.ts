@@ -17,3 +17,16 @@ export const postReviewComments = async (
     comments: reviewComments,
   });
 };
+
+export const postComment = async (
+  context: Context<"pull_request">,
+  prDetails: PRDetails,
+  comment: string,
+) => {
+  await context.octokit.issues.createComment({
+    owner: prDetails.owner,
+    repo: prDetails.repo,
+    issue_number: prDetails.pull_number,
+    body: comment,
+  });
+};

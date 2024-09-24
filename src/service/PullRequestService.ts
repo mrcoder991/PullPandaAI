@@ -4,7 +4,7 @@ import getPRDiff from "../utils/getPrDiff.js";
 import parseDiff from "parse-diff";
 import { createChat } from "../utils/createChat.js";
 import { analyzeCode, getReviewBody } from "../utils/analyzeCode.js";
-import { postReviewComments } from "../utils/postReviewComments.js";
+import { postComment, postReviewComments } from "../utils/postReviewComments.js";
 
 export const reviewCodeAndPostComments = async (
   context: Context<"pull_request">
@@ -19,16 +19,6 @@ export const reviewCodeAndPostComments = async (
     repo,
   });
 
-  if (
-    // Skip review if PR is not against default branch
-    context.payload.pull_request.base.ref !== repoDetails.data.default_branch ||
-    // Skip review if PR is Draft
-    context.payload.pull_request.draft
-  ) {
-    context.log.info("PR is not against default branch or Draft. Skipping review.");
-    return;
-  }
-
   const prDetails: PRDetails = {
     title: context.payload.pull_request.title,
     description: context.payload.pull_request.body || "",
@@ -37,6 +27,17 @@ export const reviewCodeAndPostComments = async (
     pull_number,
     commit_id: context.payload.pull_request.head.sha,
   };
+
+  if (
+    // Skip review if PR is not against default branch
+    context.payload.pull_request.base.ref !== repoDetails.data.default_branch ||
+    // Skip review if PR is Draft
+    context.payload.pull_request.draft
+  ) {
+    context.log.info("PR is not against default branch or Draft. Skipping review.");
+    postComment(context, prDetails, "🤖 Reviews for draft PRs and PRs not against default branch are skipped.");
+    return;
+  }
 
   const diff: string = await getPRDiff(owner, repo, pull_number, context);
   const parsedDiff = parseDiff(diff);
