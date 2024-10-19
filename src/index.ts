@@ -4,10 +4,10 @@ import { createAndPostWelcomeComment } from "./service/IssuesService.js";
 
 export default (app: Probot) => {
   app.on("issues.opened", async (context) => {
-    await createAndPostWelcomeComment(context);
+    await createAndPostWelcomeComment({context});
   });
 
-  app.on("pull_request.opened", async (context) => {
+  app.on("pull_request", async (context) => {
     await reviewCodeAndPostComments({context});
   });
 

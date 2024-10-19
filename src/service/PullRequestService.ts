@@ -9,14 +9,14 @@ import { shouldReturn } from "../utils/shouldReturnHandler.js";
 
 export const reviewCodeAndPostComments = async ({
   context,
-  readyForReview = false
+  readyForReview = false,
 }: {
   context: Context<"pull_request">;
   readyForReview?: boolean;
 }) => {
   const { owner, repo, pull_number } = context.pullRequest();
   context.log.info(
-    `Received event ${context.name} for ${context.payload.pull_request.title} - ${context.payload.pull_request.html_url}`
+    `Received event "${context.payload.action}" for title: "${context.payload.pull_request.title}" - "${context.payload.pull_request.html_url}"`
   );
 
   const repoDetails = await context.octokit.repos.get({
@@ -50,12 +50,12 @@ export const reviewCodeAndPostComments = async ({
       context.log.info(
         `Using chatId: ${chatId} For - ${context.payload.pull_request.html_url}`
       );
-      reviewComments = await analyzeCode(
+      reviewComments = await analyzeCode({
         parsedDiff,
         prDetails,
         chatId,
-        context
-      );
+        context,
+      });
       reviewBody = await getReviewBody(chatId, context);
     } catch (error) {
       context.log.error("Error while analyzing code:", JSON.stringify(error));
@@ -64,7 +64,10 @@ export const reviewCodeAndPostComments = async ({
     try {
       await postReviewComments(context, prDetails, reviewBody, reviewComments);
     } catch (error) {
-      context.log.error("Error While Posting Review comments:", JSON.stringify(error));
+      context.log.error(
+        "Error While Posting Review comments:",
+        JSON.stringify(error)
+      );
       await postReviewComments(context, prDetails, reviewBody, []);
     }
   }

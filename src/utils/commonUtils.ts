@@ -44,7 +44,7 @@ export const createConfig = ({
 
 export const createDiffPrompt = (
   file: File,
-  chunk: Chunk,
+  fileDiff: string,
   prDetails: PRDetails
 ): string => {
   return `
@@ -59,14 +59,20 @@ export const createDiffPrompt = (
   Git diff to review:
   
   \`\`\`diff
-  ${chunk.content}
-  ${chunk.changes
-    // @ts-expect-error - ln and ln2 exists where needed
-    .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
-    .join("\n")}
+  ${fileDiff}
   \`\`\`
   `;
 };
+
+export const processChunk = (chunk: Chunk): string => {
+  return `
+  ${chunk.content}
+  ${chunk.changes
+  // @ts-expect-error - ln and ln2 exists where needed
+  .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
+  .join("\n")}
+  `;
+}
 
 export const createComment = (
   file: File,
