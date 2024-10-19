@@ -90,7 +90,7 @@ export const createComment = (
 export const shouldIgnoreFile = (filePath: string = ""): boolean => {
   return ignoreFiles.filter((value, index, self) => self.indexOf(value) === index)
     .some((pattern) =>
-      new RegExp(pattern.replace(/\./g, "\\.").replace(/\*/g, ".*")).test(
+      new RegExp(pattern).test(
         filePath
       )
     );
