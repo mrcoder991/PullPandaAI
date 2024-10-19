@@ -8,6 +8,10 @@ export default (app: Probot) => {
   });
 
   app.on("pull_request.opened", async (context) => {
-    await reviewCodeAndPostComments(context);
+    await reviewCodeAndPostComments({context});
+  });
+
+  app.on("pull_request.ready_for_review", async (context) => {
+    await reviewCodeAndPostComments({context, readyForReview: true});
   });
 };

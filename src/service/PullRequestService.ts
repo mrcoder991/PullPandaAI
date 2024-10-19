@@ -4,14 +4,19 @@ import getPRDiff from "../utils/getPrDiff.js";
 import parseDiff from "parse-diff";
 import { createChat } from "../utils/createChat.js";
 import { analyzeCode, getReviewBody } from "../utils/analyzeCode.js";
-import { postComment, postReviewComments } from "../utils/postReviewComments.js";
+import { postReviewComments } from "../utils/postReviewComments.js";
+import { shouldReturn } from "../utils/shouldReturnHandler.js";
 
-export const reviewCodeAndPostComments = async (
-  context: Context<"pull_request">
-) => {
+export const reviewCodeAndPostComments = async ({
+  context,
+  readyForReview = false
+}: {
+  context: Context<"pull_request">;
+  readyForReview?: boolean;
+}) => {
   const { owner, repo, pull_number } = context.pullRequest();
   context.log.info(
-    `Started Review of the PR with title: ${context.payload.pull_request.title} - ${context.payload.pull_request.html_url}`
+    `Received event ${context.name} for ${context.payload.pull_request.title} - ${context.payload.pull_request.html_url}`
   );
 
   const repoDetails = await context.octokit.repos.get({
@@ -28,14 +33,7 @@ export const reviewCodeAndPostComments = async (
     commit_id: context.payload.pull_request.head.sha,
   };
 
-  if (
-    // Skip review if PR is not against default branch
-    context.payload.pull_request.base.ref !== repoDetails.data.default_branch ||
-    // Skip review if PR is Draft
-    context.payload.pull_request.draft
-  ) {
-    context.log.info("PR is not against default branch or Draft. Skipping review.");
-    postComment(context, prDetails, "🤖 Reviews for draft PRs and PRs not against default branch are skipped.");
+  if (shouldReturn({ context, readyForReview, prDetails, repoDetails })) {
     return;
   }
 
