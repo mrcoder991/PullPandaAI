@@ -38,13 +38,11 @@ export const analyzeCode = async ({
       const aiResponse = await getResponseForPrompt(chatId, prompt, context);
       // json gets parsed correctly that means the response is valid
       const parsedAiResponse: AiResponse = JSON.parse(
-        aiResponse.replace(/^.*```.*json/g, "").replace(/```.*$/g, "")
+        aiResponse.replace(/^```json|```$/g, "")
       );
       newComments = createComment(file, parsedAiResponse);
     } catch (error) {
-      context.log.error("Error While Posting comment", JSON.stringify(error));
-      console.log("Error While Posting comment", error);
-      console.error("Error While Posting comment", error);
+      context.log.error("Error While Parsing AI response", error);
       continue;
     }
 

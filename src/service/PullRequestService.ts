@@ -58,7 +58,7 @@ export const reviewCodeAndPostComments = async ({
       });
       reviewBody = await getReviewBody(chatId, context);
     } catch (error) {
-      context.log.error("Error while analyzing code:", JSON.stringify(error));
+      context.log.error("Error while analyzing code:", error);
     }
 
     try {
