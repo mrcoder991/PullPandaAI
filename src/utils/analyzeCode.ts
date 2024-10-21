@@ -26,12 +26,12 @@ export const analyzeCode = async ({
     let fileDiff = "";
 
     if (file.to === "/dev/null" || shouldIgnoreFile(file.to)) continue; // Ignore deleted files and files in the ignore list
-    
+
     for (const chunk of file.chunks) {
       const processedChunkString = processChunk(chunk);
-      fileDiff += ".\n.\n.\n" + processedChunkString  ;
+      fileDiff += ".\n.\n.\n" + processedChunkString;
     }
-    
+
     const prompt = createDiffPrompt(file, fileDiff, prDetails);
     let newComments: ReviewComment[] = [];
     try {
@@ -58,5 +58,16 @@ export const getReviewBody = async (
   context: Context<"pull_request">
 ): Promise<string> => {
   const prompt = "****(scenario 2)****";
-  return await getResponseForPrompt(chatId, prompt, context);
+  const aiResponse = await getResponseForPrompt(chatId, prompt, context);
+
+  const body = `
+${aiResponse}
+
+<details>
+  <summary>📝 Please provide feedback on the review</summary>
+  Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
+</details>
+`;
+
+  return body;
 };
