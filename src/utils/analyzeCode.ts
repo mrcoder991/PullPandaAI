@@ -64,9 +64,12 @@ export const getReviewBody = async (
 ${aiResponse}
 
 <details>
-  <summary>📝 Please provide feedback on the review</summary>
-  Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
+<summary>📝 Please provide feedback on the review</summary>
+
+-  Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
+
 </details>
+
 `;
 
   return body;
