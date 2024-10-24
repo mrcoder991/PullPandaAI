@@ -15,6 +15,6 @@ export const createChat = async (context: Context<"pull_request">) => {
     );
     return response.data.id;
   } catch (error) {
-    context.log.error("Error:", error);
+    context.log.error(error, "Error while creating new chat: " );
   }
 };

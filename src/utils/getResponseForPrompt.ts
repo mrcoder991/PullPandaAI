@@ -41,7 +41,7 @@ export const getResponseForPrompt = async (
 
       // error callback
       stream.on("error", (e: any) => {
-        context.log.error("Error:", e);
+        context.log.error(e, "Error while streaming ai response" );
         reject(e);
       });
 

@@ -16,7 +16,7 @@ export const reviewCodeAndPostComments = async ({
 }) => {
   const { owner, repo, pull_number } = context.pullRequest();
   context.log.info(
-    `Received event "${context.payload.action}" for title: "${context.payload.pull_request.title}" - "${context.payload.pull_request.html_url}"`
+    `Received event "${context.payload.action}" for title: "${context.payload.pull_request.title}" - ${context.payload.pull_request.html_url}`
   );
 
   const repoDetails = await context.octokit.repos.get({
@@ -58,16 +58,13 @@ export const reviewCodeAndPostComments = async ({
       });
       reviewBody = await getReviewBody(chatId, context);
     } catch (error) {
-      context.log.error("Error while analyzing code:", error);
+      context.log.error(error, "Error while analyzing code:");
     }
 
     try {
       await postReviewComments(context, prDetails, reviewBody, reviewComments);
     } catch (error) {
-      context.log.error(
-        "Error While Posting Review comments:",
-        JSON.stringify(error)
-      );
+      context.log.error(error, "Error While Posting Review comments:");
       await postReviewComments(context, prDetails, reviewBody, []);
     }
   }

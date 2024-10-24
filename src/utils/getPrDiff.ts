@@ -12,7 +12,7 @@ const getPRDiff = async (owner: string, repo: string, pull_number: number, conte
         });
         return String(data);
       } catch (error: any) {
-        context.log.error(`Error: ${error.status} - ${error.message}`);
+        context.log.error(error, "Error while fetching PR diff: ");
         return "";
     }  
 }

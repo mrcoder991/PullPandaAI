@@ -42,7 +42,7 @@ export const analyzeCode = async ({
       );
       newComments = createComment(file, parsedAiResponse);
     } catch (error) {
-      context.log.error("Error While Parsing AI response", error);
+      context.log.error(error, "Error While Parsing AI response");
       continue;
     }
 
