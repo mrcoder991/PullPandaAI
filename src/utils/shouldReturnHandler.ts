@@ -20,28 +20,45 @@ export const shouldReturn = ({
 
   // Skip review if PR is Draft
   if (context.payload.pull_request.draft) {
-    context.log.info("PR is Draft. Skipping review.");
+    context.log.info("PR is Draft. Skipping review...");
     postComment(
       context,
       prDetails,
-      "🐼 Reviews for draft PRs and PRs not against default branch are skipped."
+      "Hey! 👋 I see this PR is a draft, so I'll wait until you're ready. 🐼 Just mark it `Ready for Review` when you're good to go! 🚀"
     );
     return true;
   }
 
-  // Skip review if PR is not against default branch
+  // Skip review if PR is not against default branch and for Prod deployment
   if (
-    context.payload.pull_request.base.ref !== repoDetails.data.default_branch
+    context.payload.pull_request.base.ref !== repoDetails.data.default_branch &&
+    context.payload.pull_request.title.toLowerCase().includes("prod") || 
+    ["master", "main"].includes(context.payload.pull_request.base.ref.toLowerCase())
   ) {
     context.log.info(
-      "PR is not against default branch. Skipping review."
+      "PR for prod deployment Skipping review..."
     );
     postComment(
       context,
       prDetails,
-      "🐼 Reviews for draft PRs and PRs not against default branch are skipped."
+      `Hey! 🐼 This PR looks like a ${repoDetails.data.default_branch} to ${context.payload.pull_request.base.ref} merge for **Production Deployment**, so I'll skip the review. Wishing you a smooth release! 🚀✨`
     );
     return true;
   }
+
+    // Skip review if PR is not against default branch
+    if (
+      context.payload.pull_request.base.ref !== repoDetails.data.default_branch
+    ) {
+      context.log.info(
+        "PR is not against default branch. Skipping review..."
+      );
+      postComment(
+        context,
+        prDetails,
+        `Hey! 🐼 I noticed this PR isn't targeting the default \`${repoDetails.data.default_branch}\` branch, so I'll skip the review. 👍`
+      );
+      return true;
+    }
   return false;
 };
