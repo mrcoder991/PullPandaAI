@@ -13,6 +13,8 @@ export const shouldReturn = ({
   prDetails: PRDetails;
   repoDetails: any;
 }): boolean => {
+  const prBranch = context.payload.pull_request.base.ref;
+  const defaultRepoBranch = repoDetails.data.default_branch;
   if (readyForReview) {
     postComment(context, prDetails, "🐼 Continuing With the review");
     return false;
@@ -31,34 +33,29 @@ export const shouldReturn = ({
 
   // Skip review if PR is not against default branch and for Prod deployment
   if (
-    context.payload.pull_request.base.ref !== repoDetails.data.default_branch &&
-    context.payload.pull_request.title.toLowerCase().includes("prod") || 
-    ["master", "main"].includes(context.payload.pull_request.base.ref.toLowerCase())
+    prBranch !== defaultRepoBranch &&
+    context.payload.pull_request.title.toLowerCase().includes("prod") &&
+    ["master", "main"].includes(prBranch.toLowerCase()) &&
+    ["dev", "develop"].includes(defaultRepoBranch.toLowerCase())
   ) {
-    context.log.info(
-      "PR for prod deployment Skipping review..."
-    );
+    context.log.info("PR for prod deployment Skipping review...");
     postComment(
       context,
       prDetails,
-      `Hey! 🐼 This PR looks like a ${repoDetails.data.default_branch} to ${context.payload.pull_request.base.ref} merge for **Production Deployment**, so I'll skip the review. Wishing you a smooth release! 🚀✨`
+      `Hey! 🐼 This PR looks like a \`${defaultRepoBranch}\` to \`${prBranch}\` merge for **Production Deployment**, so I'll skip the review. Wishing you a smooth release! 🚀✨`
     );
     return true;
   }
 
-    // Skip review if PR is not against default branch
-    if (
-      context.payload.pull_request.base.ref !== repoDetails.data.default_branch
-    ) {
-      context.log.info(
-        "PR is not against default branch. Skipping review..."
-      );
-      postComment(
-        context,
-        prDetails,
-        `Hey! 🐼 I noticed this PR isn't targeting the default \`${repoDetails.data.default_branch}\` branch, so I'll skip the review. 👍`
-      );
-      return true;
-    }
+  // Skip review if PR is not against default branch
+  if (prBranch !== defaultRepoBranch) {
+    context.log.info("PR is not against default branch. Skipping review...");
+    postComment(
+      context,
+      prDetails,
+      `Hey! 🐼 I noticed this PR isn't targeting the default \`${defaultRepoBranch}\` branch, so I'll skip the review. 👍`
+    );
+    return true;
+  }
   return false;
 };
