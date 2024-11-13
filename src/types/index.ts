@@ -1,3 +1,5 @@
+import { RestEndpointMethodTypes } from "@octokit/rest";
+
 export enum HttpMethod {
   GET = "GET",
   DELETE = "DELETE",
@@ -18,6 +20,10 @@ export interface PRDetails {
   title: string;
   description: string;
   commit_id: string;
+}
+
+export type RepoDetails = RestEndpointMethodTypes["repos"]["get"]["response"] & {
+  
 }
 
 export interface Review {

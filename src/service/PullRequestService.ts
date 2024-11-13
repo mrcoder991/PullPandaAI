@@ -1,11 +1,12 @@
 import { Context } from "probot";
-import { PRDetails, ReviewComment } from "../types/index.js";
+import { ReviewComment } from "../types/index.js";
 import getPRDiff from "../utils/getPrDiff.js";
 import parseDiff from "parse-diff";
 import { createChat } from "../utils/createChat.js";
 import { analyzeCode, getReviewBody } from "../utils/analyzeCode.js";
 import { postReviewComments } from "../utils/postReviewComments.js";
 import { shouldReturn } from "../utils/shouldReturnHandler.js";
+import { getPullRequestContext } from "../utils/getPullRequestContext.js";
 
 export const reviewCodeAndPostComments = async ({
   context,
@@ -14,30 +15,17 @@ export const reviewCodeAndPostComments = async ({
   context: Context<"pull_request">;
   readyForReview?: boolean;
 }) => {
-  const { owner, repo, pull_number } = context.pullRequest();
+  const { repoDetails, prDetails } = await getPullRequestContext({ context });
+
   context.log.info(
     `Received event "${context.payload.action}" for title: "${context.payload.pull_request.title}" - ${context.payload.pull_request.html_url}`
   );
-
-  const repoDetails = await context.octokit.repos.get({
-    owner,
-    repo,
-  });
-
-  const prDetails: PRDetails = {
-    title: context.payload.pull_request.title,
-    description: context.payload.pull_request.body || "",
-    owner,
-    repo,
-    pull_number,
-    commit_id: context.payload.pull_request.head.sha,
-  };
-
+  
   if (shouldReturn({ context, readyForReview, prDetails, repoDetails })) {
     return;
   }
 
-  const diff: string = await getPRDiff(owner, repo, pull_number, context);
+  const diff: string = await getPRDiff(prDetails.owner, prDetails.repo, prDetails.pull_number, context);
   const parsedDiff = parseDiff(diff);
 
   let reviewComments: ReviewComment[] = [];
