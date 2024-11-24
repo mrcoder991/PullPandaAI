@@ -3,7 +3,10 @@ import getPRDiff from "../utils/getPrDiff.js";
 import { CommandFlag, PRDetails, ReviewComment } from "../types/index.js";
 import { createChat } from "../utils/createChat.js";
 import { analyzeCode, getReviewBody } from "../utils/analyzeCode.js";
-import { postReviewComments } from "../utils/postReviewComments.js";
+import {
+  postComment,
+  postReviewComments,
+} from "../utils/postReviewComments.js";
 import { Context } from "probot";
 
 export const reviewPullRequest = async ({
@@ -15,6 +18,14 @@ export const reviewPullRequest = async ({
   prDetails: PRDetails;
   flag: CommandFlag;
 }) => {
+  if (flag === CommandFlag.ReviewSkipped) {
+    postComment(
+      context,
+      prDetails,
+      "Hey! 🐼 I see you've chosen to skip the review by adding the command in the description. I'll step aside for this PR. Happy coding! 🚀"
+    );
+    return;
+  }
   const diff: string = await getPRDiff(
     prDetails.owner,
     prDetails.repo,
