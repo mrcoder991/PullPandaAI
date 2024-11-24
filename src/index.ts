@@ -8,12 +8,7 @@ export default (app: Probot) => {
   });
 
   app.on(
-    [
-      "pull_request.opened",
-      "pull_request.ready_for_review",
-      "pull_request.closed",
-      "pull_request.reopened",
-    ],
+    ["pull_request.opened", "pull_request.ready_for_review"],
     async (context) => {
       const readyForReview = context.payload.action === "ready_for_review";
       await reviewCodeAndPostComments({ context, readyForReview });
