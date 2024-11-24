@@ -11,8 +11,8 @@ export const reviewPullRequest = async ({
   prDetails,
   flag,
 }: {
-    context: Context<"pull_request">;
-    prDetails: PRDetails;
+  context: Context<"pull_request">;
+  prDetails: PRDetails;
   flag: CommandFlag;
 }) => {
   const diff: string = await getPRDiff(
@@ -45,9 +45,14 @@ export const reviewPullRequest = async ({
     }
 
     try {
-      switch (flag) { 
+      switch (flag) {
         case CommandFlag.FullReviewEnabled:
-          await postReviewComments(context, prDetails, reviewBody, reviewComments);
+          await postReviewComments(
+            context,
+            prDetails,
+            reviewBody,
+            reviewComments
+          );
           break;
         case CommandFlag.SoftReviewEnabled:
           await postReviewComments(context, prDetails, reviewBody, []);
@@ -55,7 +60,6 @@ export const reviewPullRequest = async ({
         default:
           break;
       }
-      
     } catch (error) {
       context.log.error(error, "Error While Posting Review comments:");
       await postReviewComments(context, prDetails, reviewBody, []);
