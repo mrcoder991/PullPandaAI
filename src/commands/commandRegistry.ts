@@ -9,6 +9,6 @@ export const commandRegistry: { [key: string]: CommandHandler } = {
 
 export const commandDescriptions: { [key: string]: string } = {
   "@PullPanda /review": "Get a full line by line review of the pull request. (default behavior when no command is used)",
-  "@PullPanda /soft-review": "Get full detailed review in the review body. this does not touches the `Files Changed` page",
-  "@PullPanda /skip-review": "Skips the review process for the pull request.",
+  "@PullPanda /soft-review": "Get Detailed review but do not touch the `Files Changed` page",
+  "@PullPanda /skip-review": "Skip the review for the pull request.",
 };
