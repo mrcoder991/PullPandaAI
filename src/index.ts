@@ -4,14 +4,19 @@ import { createAndPostWelcomeComment } from "./service/IssuesService.js";
 
 export default (app: Probot) => {
   app.on("issues.opened", async (context) => {
-    await createAndPostWelcomeComment({context});
+    await createAndPostWelcomeComment({ context });
   });
 
-  app.on("pull_request.opened", async (context) => {
-    await reviewCodeAndPostComments({context});
-  });
-
-  app.on("pull_request.ready_for_review", async (context) => {
-    await reviewCodeAndPostComments({context, readyForReview: true});
-  });
+  app.on(
+    [
+      "pull_request.opened",
+      "pull_request.ready_for_review",
+      "pull_request.closed",
+      "pull_request.reopened",
+    ],
+    async (context) => {
+      const readyForReview = context.payload.action === "ready_for_review";
+      await reviewCodeAndPostComments({ context, readyForReview });
+    }
+  );
 };

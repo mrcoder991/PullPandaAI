@@ -40,3 +40,15 @@ export interface ReviewComment {
   path: string;
   line: number;
 }
+
+export enum CommandFlag {
+  FullReviewEnabled = "fullReviewEnabled",
+  SoftReviewEnabled = "softReviewEnabled",
+  ReviewSkipped = "reviewSkipped"
+}
+
+export type CommandFlags = {
+  [key in CommandFlag]?: boolean;
+};
+
+export type CommandHandler = (context: any, flag: CommandFlag) => Promise<CommandFlag>;

@@ -1,5 +1,10 @@
 import { File } from "parse-diff";
-import { AiResponse, PRDetails, ReviewComment } from "../types/index.js";
+import {
+  AiResponse,
+  CommandFlag,
+  PRDetails,
+  ReviewComment,
+} from "../types/index.js";
 import { getResponseForPrompt } from "./getResponseForPrompt.js";
 import {
   createComment,
@@ -8,6 +13,16 @@ import {
   shouldIgnoreFile,
 } from "./commonUtils.js";
 import { Context } from "probot";
+
+const stripMarkdownCodeBlock = (markdownString: string) => {
+  const codeBlockRegex = /```json\n([\s\S]*?)\n```/g;
+
+  const strippedString = markdownString.replace(codeBlockRegex, (codeBlock) => {
+    return codeBlock.trim();
+  });
+
+  return strippedString;
+};
 
 export const analyzeCode = async ({
   parsedDiff,
@@ -38,7 +53,7 @@ export const analyzeCode = async ({
       const aiResponse = await getResponseForPrompt(chatId, prompt, context);
       // json gets parsed correctly that means the response is valid
       const parsedAiResponse: AiResponse = JSON.parse(
-        aiResponse.replace(/^```json|```$/g, "")
+        stripMarkdownCodeBlock(aiResponse)
       );
       newComments = createComment(file, parsedAiResponse);
     } catch (error) {
@@ -55,9 +70,21 @@ export const analyzeCode = async ({
 
 export const getReviewBody = async (
   chatId: string,
-  context: Context<"pull_request">
+  context: Context<"pull_request">,
+  flag: CommandFlag
 ): Promise<string> => {
-  const prompt = "****(scenario 2)****";
+  let prompt = "";
+
+  switch (flag) {
+    case CommandFlag.FullReviewEnabled:
+      prompt = "****(scenario 2)****"; 
+      break
+    case CommandFlag.SoftReviewEnabled:
+      prompt = "****(scenario 3)****";
+      break;
+    default:
+      prompt = "****(scenario 2)****";
+  }
   const aiResponse = await getResponseForPrompt(chatId, prompt, context);
 
   const body = `

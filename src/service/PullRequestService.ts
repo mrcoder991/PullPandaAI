@@ -1,12 +1,10 @@
 import { Context } from "probot";
-import { ReviewComment } from "../types/index.js";
-import getPRDiff from "../utils/getPrDiff.js";
-import parseDiff from "parse-diff";
-import { createChat } from "../utils/createChat.js";
-import { analyzeCode, getReviewBody } from "../utils/analyzeCode.js";
-import { postReviewComments } from "../utils/postReviewComments.js";
+import { CommandFlag } from "../types/index.js";
 import { shouldReturn } from "../utils/shouldReturnHandler.js";
 import { getPullRequestContext } from "../utils/getPullRequestContext.js";
+import { commandRegistry } from "../commands/commandRegistry.js";
+import { getCommand } from "../utils/commonUtils.js";
+import { reviewPullRequest } from "../handlers/reviewPullRequest.js";
 
 export const reviewCodeAndPostComments = async ({
   context,
@@ -20,40 +18,33 @@ export const reviewCodeAndPostComments = async ({
   context.log.info(
     `Received event "${context.payload.action}" for title: "${context.payload.pull_request.title}" - ${context.payload.pull_request.html_url}`
   );
-  
+
   if (shouldReturn({ context, readyForReview, prDetails, repoDetails })) {
     return;
   }
 
-  const diff: string = await getPRDiff(prDetails.owner, prDetails.repo, prDetails.pull_number, context);
-  const parsedDiff = parseDiff(diff);
+  const botMentions = ["@pullpandaai", "@pullpanda"];
+  // this default flag can be what it is defined in config file in future
+  // currently if no command is found, we will do a full review
+  let flag = CommandFlag.FullReviewEnabled;
 
-  let reviewComments: ReviewComment[] = [];
-  let reviewBody: string =
-    "Great job on this pull request! The code looks solid, but make sure to cover all edge cases and potential bugs 🕵️‍♂️. One thing though—please ensure unit tests are included; there's no skipping this part! 🧪 It's essential for maintaining code quality. Keep up the awesome work! 🚀";
+  if (
+    botMentions.some((mention) =>
+      prDetails.description.toLowerCase().includes(mention)
+    )
+  ) {
+    const command = getCommand(prDetails.description);
 
-  if (diff) {
-    try {
-      const chatId = await createChat(context);
-      context.log.info(
-        `Using chatId: ${chatId} For - ${context.payload.pull_request.html_url}`
-      );
-      reviewComments = await analyzeCode({
-        parsedDiff,
-        prDetails,
-        chatId,
-        context,
-      });
-      reviewBody = await getReviewBody(chatId, context);
-    } catch (error) {
-      context.log.error(error, "Error while analyzing code:");
+    if (command && commandRegistry[command]) {
+      flag = await commandRegistry[command](context, flag);
+      await reviewPullRequest({ context, prDetails, flag });
+    } else {
+      context.log.info("Bot Mention found but no valid command found, performing full review");
+      await reviewPullRequest({ context, prDetails, flag: CommandFlag.FullReviewEnabled });
     }
-
-    try {
-      await postReviewComments(context, prDetails, reviewBody, reviewComments);
-    } catch (error) {
-      context.log.error(error, "Error While Posting Review comments:");
-      await postReviewComments(context, prDetails, reviewBody, []);
-    }
+  } else {
+    await reviewPullRequest({ context, prDetails, flag });
   }
+
+  context.log.info(`Review completed... Flag used: ${flag}`);
 };

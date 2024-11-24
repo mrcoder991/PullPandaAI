@@ -72,7 +72,7 @@ export const processChunk = (chunk: Chunk): string => {
   .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
   .join("\n")}
   `;
-}
+};
 
 export const createComment = (
   file: File,
@@ -94,28 +94,32 @@ export const createComment = (
 };
 
 export const shouldIgnoreFile = (filePath: string = ""): boolean => {
-  return ignoreFiles.filter((value, index, self) => self.indexOf(value) === index)
-    .some((pattern) =>
-      new RegExp(pattern).test(
-        filePath
-      )
-    );
+  return ignoreFiles
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .some((pattern) => new RegExp(pattern).test(filePath));
 };
 
-export const convertAppdirectAiResponseBufferToJSON = (bufferString: string): any => {
+export const convertAppdirectAiResponseBufferToJSON = (
+  bufferString: string
+): any => {
   const regex = /data: ({.*?"type":"message\.delta".*?})\n/g;
 
   const matches = [];
   let match;
 
   while ((match = regex.exec(bufferString)) !== null) {
-      try {
-          const data = JSON.parse(match[1]);
-          matches.push(data);
-      } catch (error) {
-          console.error('Invalid JSON:', match[1]); 
-      }
+    try {
+      const data = JSON.parse(match[1]);
+      matches.push(data);
+    } catch (error) {
+      console.error("Invalid JSON:", match[1]);
+    }
   }
 
   return matches;
-}
+};
+
+export const getCommand = (body: string) => {
+  const commandMatch = body.match(/@pullpanda(?:ai)? \/[a-zA-Z0-9_-]+/i);
+  return commandMatch ? commandMatch[0].split(" ")[1] : null;
+};
