@@ -97,8 +97,7 @@ ${aiResponse}
 
 <details>
 <summary> <b> 💬 Available Commands</b></summary>
-
-Commands can be used to customize the review process. You can use the following commands in the PR description to customize the review process:
+You can use the following commands in the PR description to customize the review process:
 
 use \`@PullPandaAi [command]\` or \`@PullPanda [command]\` (case insensitive).
 
