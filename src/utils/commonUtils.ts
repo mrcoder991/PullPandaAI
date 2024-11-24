@@ -8,6 +8,7 @@ import {
   ReviewComment,
 } from "../types/index.js";
 import { apiKey } from "./config.js";
+import { commandDescriptions } from "../commands/commandRegistry.js";
 
 export const isEmpty = (value?: string | object): boolean =>
   value === undefined ||
@@ -122,4 +123,12 @@ export const convertAppdirectAiResponseBufferToJSON = (
 export const getCommand = (body: string) => {
   const commandMatch = body.match(/@pullpanda(?:ai)? \/[a-zA-Z0-9_-]+/i);
   return commandMatch ? commandMatch[0].split(" ")[1] : null;
+};
+
+export const generateCommandDocs = (): string => {
+  let docs = "";
+  for (const [command, description] of Object.entries(commandDescriptions)) {
+    docs += `- **\`${command}\`**: ${description}\n`;
+  }
+  return docs;
 };

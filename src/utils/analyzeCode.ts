@@ -9,6 +9,7 @@ import { getResponseForPrompt } from "./getResponseForPrompt.js";
 import {
   createComment,
   createDiffPrompt,
+  generateCommandDocs,
   processChunk,
   shouldIgnoreFile,
 } from "./commonUtils.js";
@@ -87,16 +88,25 @@ export const getReviewBody = async (
   }
   const aiResponse = await getResponseForPrompt(chatId, prompt, context);
 
+  const commandDocs = generateCommandDocs();
+
   const body = `
 ${aiResponse}
 
-<details>
-<summary>📝 Please provide feedback on the review</summary>
 
--  Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
+
+<details>
+<summary> <b> 💬 Available Commands</b></summary>
+
+Commands can be used to customize the review process. You can use the following commands in the PR description to customize the review process:
+
+use \`@PullPandaAi [command]\` or \`@PullPanda [command]\` (case insensitive).
+
+${commandDocs}
+
+####  Got any questions / suggestions / issues? Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
 
 </details>
-
 `;
 
   return body;
