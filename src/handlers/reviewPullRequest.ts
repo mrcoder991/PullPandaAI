@@ -23,8 +23,6 @@ export const reviewPullRequest = async ({
   );
   const parsedDiff = parseDiff(diff);
 
-  console.log("Diff", diff);
-
   let reviewComments: ReviewComment[] = [];
   let reviewBody: string =
     "Great job on this pull request! The code looks solid, but make sure to cover all edge cases and potential bugs 🕵️‍♂️. One thing though—please ensure unit tests are included; there's no skipping this part! 🧪 It's essential for maintaining code quality. Keep up the awesome work! 🚀";
