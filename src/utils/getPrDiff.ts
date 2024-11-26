@@ -12,7 +12,7 @@ const getPRDiff = async (
       repo,
       pull_number,
       headers: {
-        accept: "application/vnd.github.diff",
+        accept: "application/vnd.github.patch",
       },
     });
     return String(data);
