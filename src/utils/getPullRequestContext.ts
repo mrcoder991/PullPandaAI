@@ -22,7 +22,8 @@ export const getPullRequestContext = async ({
     owner,
     repo,
     pull_number,
-    commit_id: context.payload.pull_request.head.sha,
+    head_sha: context.payload.pull_request.head.sha,
+    base_sha: context.payload.pull_request.base.sha,
   };
 
   return { prDetails, repoDetails };

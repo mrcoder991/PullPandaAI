@@ -19,7 +19,8 @@ export interface PRDetails {
   pull_number: number;
   title: string;
   description: string;
-  commit_id: string;
+  head_sha: string;
+  base_sha: string;
 }
 
 export type RepoDetails = RestEndpointMethodTypes["repos"]["get"]["response"] & {
