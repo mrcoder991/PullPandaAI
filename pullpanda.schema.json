@@ -1,0 +1,41 @@
+{
+    "title": "PullPanda Configuration",
+    "type": "object",
+    "properties": {
+      "$schema": {
+        "type": "string",
+        "description": "The schema that this configuration file adheres to"
+      },
+      "enabled": {
+        "type": "boolean",
+        "description": "Enable or disable the application"
+      },
+      "reviews": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Get a full line by line review of the pull request",
+          "oneOf": [
+            {
+              "const": "fullReview",
+              "description": "Full line by review of the code"
+            },
+            {
+              "const": "softReview",
+              "description": "Get Detailed review but do not touch the `Files Changed` page"
+            },
+            {
+              "const": "skipReview",
+              "description": "Skip the review for the pull request."
+            }
+          ]
+        }
+      },
+      "required": ["level"],
+      "additionalProperties": false
+    }
+    },
+    "required": ["enabled"],
+    "additionalProperties": false
+  }
