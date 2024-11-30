@@ -7,7 +7,12 @@ export const processPullPandaComments = async ({
 }: {
   context: Context<"pull_request">;
 }) => {
-  const { prDetails } = await getPullRequestContext({ context });
+  const { prDetails } = await getPullRequestContext({
+    owner: context.payload.repository.owner.login,
+    repo: context.payload.repository.name,
+    pull_number: context.payload.pull_request.number,
+    octokit: context.octokit as any,
+  });
 
   const outdatedComments = await getOutdatedComments({
     context,

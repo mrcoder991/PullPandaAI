@@ -1,14 +1,22 @@
-import { Context } from "probot";
+import { Context, Logger } from "probot";
 import { PRDetails } from "../types/index.js";
+import { Octokit } from "@octokit/rest";
 
-const getPRDiff = async (
-  owner: string,
-  repo: string,
-  pull_number: number,
-  context: Context<"pull_request">
-): Promise<string> => {
+const getPRDiff = async ({
+  owner,
+  repo,
+  pull_number,
+  octokit,
+  logger,
+}: {
+  owner: string;
+  repo: string;
+  pull_number: number;
+  octokit: Octokit;
+  logger: Logger;
+}): Promise<string> => {
   try {
-    const { data } = await context.octokit.pulls.get({
+    const { data } = await octokit.pulls.get({
       owner,
       repo,
       pull_number,
@@ -18,19 +26,19 @@ const getPRDiff = async (
     });
     return String(data);
   } catch (error: any) {
-    context.log.error(error, "Error while fetching PR diff: ");
+    logger.error(error, "Error while fetching PR diff: ");
     return "";
   }
 };
 
 export const getCompareCommits = async ({
-  context,
+  octokit,
   prDetails,
 }: {
-  context: Context<"pull_request">;
+  octokit: Octokit;
   prDetails: PRDetails;
 }) => {
-  const result = await context.octokit.repos.compareCommits({
+  const result = await octokit.repos.compareCommits({
     owner: prDetails.owner,
     repo: prDetails.repo,
     head: prDetails.head_sha,

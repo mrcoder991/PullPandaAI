@@ -1,14 +1,17 @@
 import axios from "axios";
 import { HttpMethod } from "../types/index.js";
-import { convertAppdirectAiResponseBufferToJSON, createConfig } from "./commonUtils.js";
+import {
+  convertAppdirectAiResponseBufferToJSON,
+  createConfig,
+} from "./commonUtils.js";
 import { IncomingMessage } from "http";
 import { baseUrl } from "./config.js";
-import { Context } from "probot";
+import { Logger } from "probot";
 
 export const getResponseForPrompt = async (
   chatId: string,
   prompt: string,
-  context: Context<"pull_request">
+  logger: Logger
 ): Promise<string> => {
   const httpResponse = await axios.request(
     createConfig({
@@ -41,7 +44,7 @@ export const getResponseForPrompt = async (
 
       // error callback
       stream.on("error", (e: any) => {
-        context.log.error(e, "Error while streaming ai response" );
+        logger.error(e, "Error while streaming ai response");
         reject(e);
       });
 

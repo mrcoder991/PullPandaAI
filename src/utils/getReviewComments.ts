@@ -1,14 +1,14 @@
-import { Context } from "probot";
 import { PRDetails } from "../types/index.js";
+import { Octokit } from "@octokit/rest";
 
 export const getReviewComments = async ({
-  context,
+  octokit,
   prDetails,
 }: {
-  context: Context<"pull_request">;
+  octokit: Octokit;
   prDetails: PRDetails;
 }) => {
-  const response = await context.octokit.rest.pulls.listReviewComments({
+  const response = await octokit.rest.pulls.listReviewComments({
     owner: prDetails.owner,
     repo: prDetails.repo,
     pull_number: prDetails.pull_number,

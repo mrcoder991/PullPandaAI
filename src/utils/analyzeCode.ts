@@ -13,7 +13,7 @@ import {
   processChunk,
   shouldIgnoreFile,
 } from "./commonUtils.js";
-import { Context } from "probot";
+import { Logger } from "probot";
 
 const stripMarkdownCodeBlock = (markdownString: string) => {
   const codeBlockRegex = /```json\n([\s\S]*?)\n```/g;
@@ -29,12 +29,12 @@ export const analyzeCode = async ({
   parsedDiff,
   prDetails,
   chatId,
-  context,
+  logger,
 }: {
   parsedDiff: File[];
   prDetails: PRDetails;
   chatId: string;
-  context: Context<"pull_request">;
+  logger: Logger;
 }): Promise<ReviewComment[]> => {
   const comments: ReviewComment[] = [];
 
@@ -51,14 +51,14 @@ export const analyzeCode = async ({
     const prompt = createDiffPrompt(file, fileDiff, prDetails);
     let newComments: ReviewComment[] = [];
     try {
-      const aiResponse = await getResponseForPrompt(chatId, prompt, context);
+      const aiResponse = await getResponseForPrompt(chatId, prompt, logger);
       // json gets parsed correctly that means the response is valid
       const parsedAiResponse: AiResponse = JSON.parse(
         stripMarkdownCodeBlock(aiResponse)
       );
       newComments = createComment(file, parsedAiResponse);
     } catch (error) {
-      context.log.error(error, "Error While Parsing AI response");
+      logger.error(error, "Error While Parsing AI response");
       continue;
     }
 
@@ -71,7 +71,7 @@ export const analyzeCode = async ({
 
 export const getReviewBody = async (
   chatId: string,
-  context: Context<"pull_request">,
+  logger: Logger,
   flag: CommandFlag
 ): Promise<string> => {
   let prompt = "";
@@ -86,7 +86,7 @@ export const getReviewBody = async (
     default:
       prompt = "****(scenario 2)****";
   }
-  const aiResponse = await getResponseForPrompt(chatId, prompt, context);
+  const aiResponse = await getResponseForPrompt(chatId, prompt, logger);
 
   const commandDocs = generateCommandDocs();
 
@@ -102,6 +102,9 @@ You can use the following commands in the PR description to customize the review
 use \`@PullPandaAi [command]\` or \`@PullPanda [command]\` (case insensitive).
 
 ${commandDocs}
+
+> [!TIP]
+> Some of the PR description commands can be used in form of PR comments as well. 
 
 ####  Got any questions / suggestions / issues? Fill out the [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfNlXZzo8MLf85FkeNpM1NNKdk-Gjvt5X0QV9OQBgad9pmvJA/viewform?usp=sf_link)
 

@@ -1,29 +1,42 @@
-import { Context } from "probot";
 import { PRDetails, RepoDetails } from "../types/index.js";
+import { Octokit } from "@octokit/rest";
 
 export const getPullRequestContext = async ({
-  context,
+  owner,
+  repo,
+  pull_number,
+  octokit,
 }: {
-  context: Context<"pull_request">;
+  owner: string;
+  repo: string;
+  pull_number: number;
+  octokit: Octokit;
 }): Promise<{
   prDetails: PRDetails;
   repoDetails: RepoDetails;
 }> => {
-  const { owner, repo, pull_number } = context.pullRequest();
-
-  const repoDetails: RepoDetails = await context.octokit.repos.get({
+  const repoDetails: RepoDetails = await octokit.repos.get({
     owner,
     repo,
   });
 
-  const prDetails: PRDetails = {
-    title: context.payload.pull_request.title,
-    description: context.payload.pull_request.body || "",
+  const { data } = await octokit.pulls.get({
     owner,
     repo,
     pull_number,
-    head_sha: context.payload.pull_request.head.sha,
-    base_sha: context.payload.pull_request.base.sha,
+  });
+
+  const prDetails: PRDetails = {
+    title: data.title,
+    description: data.body || "",
+    owner,
+    repo,
+    pull_number,
+    head_sha: data.head.sha,
+    base_sha: data.base.sha,
+    html_url: data.html_url,
+    baseref: data.base.ref,
+    isDraft: data.draft,
   };
 
   return { prDetails, repoDetails };

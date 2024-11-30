@@ -1,4 +1,4 @@
-import { RestEndpointMethodTypes } from "@octokit/rest";
+import { Octokit, RestEndpointMethodTypes } from "@octokit/rest";
 
 export enum HttpMethod {
   GET = "GET",
@@ -21,11 +21,13 @@ export interface PRDetails {
   description: string;
   head_sha: string;
   base_sha: string;
+  html_url: string;
+  baseref: string;
+  isDraft?: boolean;
 }
 
-export type RepoDetails = RestEndpointMethodTypes["repos"]["get"]["response"] & {
-  
-}
+export type RepoDetails =
+  RestEndpointMethodTypes["repos"]["get"]["response"] & {};
 
 export interface Review {
   lineNumber: string;
@@ -36,7 +38,7 @@ export interface AiResponse {
   reviews: Review[];
 }
 
-export interface ReviewComment { 
+export interface ReviewComment {
   body: string;
   path: string;
   line: number;
@@ -45,11 +47,20 @@ export interface ReviewComment {
 export enum CommandFlag {
   FullReviewEnabled = "fullReviewEnabled",
   SoftReviewEnabled = "softReviewEnabled",
-  ReviewSkipped = "reviewSkipped"
+  ReviewSkipped = "reviewSkipped",
+  ReviewDeleted = "reviewDeleted",
 }
 
 export type CommandFlags = {
   [key in CommandFlag]?: boolean;
 };
 
-export type CommandHandler = (context: any, flag: CommandFlag) => Promise<CommandFlag>;
+export type CommandHandler = ({
+  octokit,
+  flag,
+  prDetails,
+}: {
+  octokit?: Octokit;
+  flag?: CommandFlag;
+  prDetails?: PRDetails;
+}) => Promise<CommandFlag>;

@@ -1,6 +1,7 @@
 import { Probot } from "probot";
 import { reviewCodeAndPostComments } from "./service/PullRequestService.js";
 import { createAndPostWelcomeComment } from "./service/IssuesService.js";
+import { processCommandsInComment } from "./service/commentsService.js";
 
 export default (app: Probot) => {
   app.on("issues.opened", async (context) => {
@@ -14,4 +15,7 @@ export default (app: Probot) => {
       await reviewCodeAndPostComments({ context, readyForReview });
     }
   );
+  app.on(["issue_comment.created"], async (context) => {
+    await processCommandsInComment({ context });
+  });
 };

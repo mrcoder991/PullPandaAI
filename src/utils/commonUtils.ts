@@ -8,7 +8,7 @@ import {
   ReviewComment,
 } from "../types/index.js";
 import { apiKey } from "./config.js";
-import { commandDescriptions } from "../commands/commandRegistry.js";
+import { commandDescriptionsForComment, commandDescriptionsForPRDescription } from "../commands/commandRegistry.js";
 
 export const isEmpty = (value?: string | object): boolean =>
   value === undefined ||
@@ -127,7 +127,12 @@ export const getCommand = (body: string) => {
 
 export const generateCommandDocs = (): string => {
   let docs = "";
-  for (const [command, description] of Object.entries(commandDescriptions)) {
+  docs += "### Commands to use in PR description\n";
+  for (const [command, description] of Object.entries(commandDescriptionsForPRDescription)) {
+    docs += `- **\`${command}\`**: ${description}\n`;
+  }
+  docs += "### Commands to use in PR comments\n";
+  for (const [command, description] of Object.entries(commandDescriptionsForComment)) {
     docs += `- **\`${command}\`**: ${description}\n`;
   }
   return docs;
