@@ -1,4 +1,4 @@
-import { Context, Logger } from "probot";
+import { Logger } from "probot";
 import { PRDetails } from "../types/index.js";
 import { Octokit } from "@octokit/rest";
 
