@@ -1,7 +1,7 @@
 import axios from "axios";
 import { HttpMethod } from "../types/index.js";
 import { createConfig } from "./commonUtils.js";
-import { aiId, baseUrl } from "./config.js";
+import { aiId, appdirectAiBaseUrl } from "./config.js";
 import { Logger } from "probot";
 
 // returns chatId along with chat details
@@ -9,7 +9,7 @@ export const createChat = async (logger: Logger) => {
   try {
     const response = await axios.request(
       createConfig({
-        url: `${baseUrl}/ai/${aiId}/chats`,
+        url: `${appdirectAiBaseUrl}/ai/${aiId}/chats`,
         method: HttpMethod.POST,
       })
     );

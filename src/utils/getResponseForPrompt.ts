@@ -5,7 +5,7 @@ import {
   createConfig,
 } from "./commonUtils.js";
 import { IncomingMessage } from "http";
-import { baseUrl } from "./config.js";
+import { appdirectAiBaseUrl } from "./config.js";
 import { Logger } from "probot";
 
 export const getResponseForPrompt = async (
@@ -15,7 +15,7 @@ export const getResponseForPrompt = async (
 ): Promise<string> => {
   const httpResponse = await axios.request(
     createConfig({
-      url: `${baseUrl}/chats/${chatId}`,
+      url: `${appdirectAiBaseUrl}/chats/${chatId}`,
       method: HttpMethod.POST,
       body: {
         date: Date.now(),
