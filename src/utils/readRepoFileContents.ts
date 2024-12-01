@@ -4,24 +4,20 @@ import { Logger } from "probot";
 export const readRepoFileContents = async ({
   octokit,
   logger,
-  owner,
-  repo,
-  defaultBranch,
+  repository,
   path,
 }: {
   octokit: Octokit;
   logger: Logger;
-  owner: string;
-  repo: string;
-  defaultBranch: string;
+  repository: any;
   path: string;
 }): Promise<string> => {
   try {
     const { data } = await octokit.repos.getContent({
-      owner,
-      repo,
+      owner: repository.owner.login,
+      repo: repository.name,
+      ref: repository.default_branch,
       path,
-      ref: defaultBranch,
     });
 
     // @ts-expect-error

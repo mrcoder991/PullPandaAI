@@ -1,4 +1,4 @@
-import { Octokit, RestEndpointMethodTypes } from "@octokit/rest";
+import { Octokit } from "@octokit/rest";
 
 export enum HttpMethod {
   GET = "GET",
@@ -26,8 +26,9 @@ export interface PRDetails {
   isDraft?: boolean;
 }
 
-export type RepoDetails =
-  RestEndpointMethodTypes["repos"]["get"]["response"] & {};
+export interface RepoDetails {
+  default_branch: string;
+}
 
 export interface Review {
   lineNumber: string;
@@ -45,9 +46,9 @@ export interface ReviewComment {
 }
 
 export enum CommandFlag {
-  FullReviewEnabled = "fullReviewEnabled",
-  SoftReviewEnabled = "softReviewEnabled",
-  ReviewSkipped = "reviewSkipped",
+  FullReviewEnabled = "fullReview",
+  SoftReviewEnabled = "softReview",
+  ReviewSkipped = "skipReview",
   ReviewDeleted = "reviewDeleted",
 }
 
@@ -64,3 +65,12 @@ export type CommandHandler = ({
   flag?: CommandFlag;
   prDetails?: PRDetails;
 }) => Promise<CommandFlag>;
+
+export interface PullPandaConfig {
+  enabled: boolean;
+  reviews: ReviewsConfig;
+}
+
+export interface ReviewsConfig {
+  level: CommandFlag;
+}

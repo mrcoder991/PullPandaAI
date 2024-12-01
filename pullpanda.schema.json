@@ -1,16 +1,16 @@
 {
-    "title": "PullPanda Configuration",
-    "type": "object",
-    "properties": {
-      "$schema": {
-        "type": "string",
-        "description": "The schema that this configuration file adheres to"
-      },
-      "enabled": {
-        "type": "boolean",
-        "description": "Enable or disable the application"
-      },
-      "reviews": {
+  "title": "PullPanda Configuration",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "The schema that this configuration file adheres to"
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Enable or disable the application"
+    },
+    "reviews": {
       "type": "object",
       "properties": {
         "level": {
@@ -35,7 +35,8 @@
       "required": ["level"],
       "additionalProperties": false
     }
-    },
-    "required": ["enabled"],
-    "additionalProperties": false
-  }
+  },
+  "required": ["enabled"],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft-07/schema#"
+}

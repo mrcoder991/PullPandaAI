@@ -5,6 +5,8 @@ import { getPullRequestContext } from "../utils/getPullRequestContext.js";
 import { commandRegistry } from "../commands/commandRegistry.js";
 import { getCommand } from "../utils/commonUtils.js";
 import { reviewPullRequest } from "../handlers/reviewPullRequest.js";
+import { botMentions } from "../constants.js";
+import { loadConfig } from "../utils/loadConfig.js";
 
 export const reviewCodeAndPostComments = async ({
   context,
@@ -13,6 +15,9 @@ export const reviewCodeAndPostComments = async ({
   context: Context<"pull_request">;
   readyForReview?: boolean;
 }) => {
+  const config = await loadConfig(context);
+  if (!config.enabled) return;
+
   const { repoDetails, prDetails } = await getPullRequestContext({
     octokit: context.octokit as any,
     owner: context.payload.repository.owner.login,
@@ -35,11 +40,8 @@ export const reviewCodeAndPostComments = async ({
   ) {
     return;
   }
-
-  const botMentions = ["@pullpandaai", "@pullpanda"];
-  // this default flag can be what it is defined in config file in future
-  // currently if no command is found, we will do a full review
-  let flag = CommandFlag.FullReviewEnabled;
+  
+  let flag = config?.reviews.level as CommandFlag;
 
   if (
     botMentions.some((mention) =>

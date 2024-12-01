@@ -15,28 +15,32 @@ export const getPullRequestContext = async ({
   prDetails: PRDetails;
   repoDetails: RepoDetails;
 }> => {
-  const repoDetails: RepoDetails = await octokit.repos.get({
+  const { data: repoData } = await octokit.repos.get({
     owner,
     repo,
   });
 
-  const { data } = await octokit.pulls.get({
+  const repoDetails: RepoDetails = {
+    default_branch: repoData.default_branch,
+  };
+
+  const { data: prData } = await octokit.pulls.get({
     owner,
     repo,
     pull_number,
   });
 
   const prDetails: PRDetails = {
-    title: data.title,
-    description: data.body || "",
+    title: prData.title,
+    description: prData.body || "",
     owner,
     repo,
     pull_number,
-    head_sha: data.head.sha,
-    base_sha: data.base.sha,
-    html_url: data.html_url,
-    baseref: data.base.ref,
-    isDraft: data.draft,
+    head_sha: prData.head.sha,
+    base_sha: prData.base.sha,
+    html_url: prData.html_url,
+    baseref: prData.base.ref,
+    isDraft: prData.draft,
   };
 
   return { prDetails, repoDetails };

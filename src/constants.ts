@@ -1,3 +1,17 @@
+import { CommandFlag, PullPandaConfig } from "./types/index.js";
+
+export const defaultPullPandaConfig: PullPandaConfig = {
+  // turn this off when globally enabled
+  enabled: true,
+  reviews: {
+    level: CommandFlag.FullReviewEnabled
+  }
+}
+
+export const PULLPANDA_CONFIG_FILE = "pullpanda.yml";
+
+export const botMentions = ["@pullpandaai", "@pullpanda"];
+
 // regex patterns to ignore
 export const ignoreFiles = [
   "package-lock.json",

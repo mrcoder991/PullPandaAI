@@ -1,6 +1,6 @@
 import { Logger } from "probot";
 import { postComment } from "./postReviewComments.js";
-import { PRDetails } from "../types/index.js";
+import { PRDetails, RepoDetails } from "../types/index.js";
 import { Octokit } from "@octokit/rest";
 
 export const shouldReturn = ({
@@ -12,12 +12,12 @@ export const shouldReturn = ({
 }: {
   readyForReview: boolean;
   prDetails: PRDetails;
-  repoDetails: any;
+  repoDetails: RepoDetails;
   octokit: Octokit;
   logger: Logger;
 }): boolean => {
   const prBranch = prDetails.baseref;
-  const defaultRepoBranch = repoDetails.data.default_branch;
+  const defaultRepoBranch = repoDetails.default_branch;
   if (readyForReview) {
     postComment({octokit, prDetails, comment: "🐼 Continuing With the review..."});
     return false;

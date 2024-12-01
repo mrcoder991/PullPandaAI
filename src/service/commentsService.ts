@@ -4,15 +4,21 @@ import { getCommand } from "../utils/commonUtils.js";
 import { commandRegistry } from "../commands/commandRegistry.js";
 import { reviewPullRequest } from "../handlers/reviewPullRequest.js";
 import { getPullRequestContext } from "../utils/getPullRequestContext.js";
+import { botMentions } from "../constants.js";
+import { loadConfig } from "../utils/loadConfig.js";
 
 export const processCommandsInComment = async ({
   context,
 }: {
   context: Context<"issue_comment">;
-  }) => {
+}) => {
+  const config = await loadConfig(context);
+  if (!config.enabled) return;
+
   if (context.payload.comment.user.type === "Bot") {
     return;
   }
+
   const { prDetails } = await getPullRequestContext({
     octokit: context.octokit as any,
     owner: context.payload.repository.owner.login,
@@ -20,7 +26,6 @@ export const processCommandsInComment = async ({
     pull_number: context.payload.issue.number,
   });
   const commentBody = context.payload.comment.body;
-  const botMentions = ["@pullpandaai", "@pullpanda"];
 
   if (
     botMentions.some((mention) => commentBody.toLowerCase().includes(mention))
@@ -29,7 +34,7 @@ export const processCommandsInComment = async ({
     if (command && commandRegistry[command]) {
       const flag = await commandRegistry[command]({
         octokit: context.octokit as any,
-        prDetails
+        prDetails,
       });
       if (
         flag === CommandFlag.FullReviewEnabled ||
@@ -42,7 +47,9 @@ export const processCommandsInComment = async ({
           logger: context.log,
         });
       }
-      context.log.info(`Command "${command}" processed successfully: flag: ${flag}`);
+      context.log.info(
+        `Command "${command}" processed successfully: flag: ${flag}`
+      );
     }
   }
   context.log.info(`No valid command found in comment: ${commentBody}`);
