@@ -1,4 +1,4 @@
-# code-review-gh-app
+# PullPandaAI
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) that A Probot app
 
@@ -31,4 +31,3 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 ## License
 
 [ISC](LICENSE) © 2024 Uday Girhepunje
-# PullPandaAI
