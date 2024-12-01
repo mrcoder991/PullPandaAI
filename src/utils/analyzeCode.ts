@@ -2,7 +2,6 @@ import { File } from "parse-diff";
 import {
   AiResponse,
   CommandFlag,
-  PRDetails,
   ReviewComment,
 } from "../types/index.js";
 import { getResponseForPrompt } from "./getResponseForPrompt.js";
@@ -27,12 +26,10 @@ const stripMarkdownCodeBlock = (markdownString: string) => {
 
 export const analyzeCode = async ({
   parsedDiff,
-  prDetails,
   chatId,
   logger,
 }: {
   parsedDiff: File[];
-  prDetails: PRDetails;
   chatId: string;
   logger: Logger;
 }): Promise<ReviewComment[]> => {
@@ -48,10 +45,10 @@ export const analyzeCode = async ({
       fileDiff += ".\n.\n.\n" + processedChunkString;
     }
 
-    const prompt = createDiffPrompt(file, fileDiff, prDetails);
+    const prompt = createDiffPrompt(file, fileDiff);
     let newComments: ReviewComment[] = [];
     try {
-      const aiResponse = await getResponseForPrompt(chatId, prompt, logger);
+      const aiResponse = await getResponseForPrompt({chatId, prompt, logger});
       // json gets parsed correctly that means the response is valid
       const parsedAiResponse: AiResponse = JSON.parse(
         stripMarkdownCodeBlock(aiResponse)
@@ -86,7 +83,7 @@ export const getReviewBody = async (
     default:
       prompt = "****(scenario 2)****";
   }
-  const aiResponse = await getResponseForPrompt(chatId, prompt, logger);
+  const aiResponse = await getResponseForPrompt({chatId, prompt, logger});
 
   const commandDocs = generateCommandDocs();
 

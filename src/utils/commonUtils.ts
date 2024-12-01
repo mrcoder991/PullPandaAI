@@ -8,7 +8,10 @@ import {
   ReviewComment,
 } from "../types/index.js";
 import { apiKey } from "./config.js";
-import { commandDescriptionsForComment, commandDescriptionsForPRDescription } from "../commands/commandRegistry.js";
+import {
+  commandDescriptionsForComment,
+  commandDescriptionsForPRDescription,
+} from "../commands/commandRegistry.js";
 
 export const isEmpty = (value?: string | object): boolean =>
   value === undefined ||
@@ -43,20 +46,38 @@ export const createConfig = ({
   return config;
 };
 
+export const createContextPrompt = ({ 
+  jiraDetails,
+  prDetails
+}:{
+  jiraDetails: string,
+  prDetails: PRDetails
+}) => {
+  return `
+  ****(Scenario 0)**** \n
+
+  ### Jira Details: \n
+  ${jiraDetails} \n
+    
+  ------ \n
+    
+  ### Pull request title: ${prDetails.title}  \n
+  ### Pull request description:
+  
+  ${prDetails.description} \n
+  
+  `;
+};
+
+
 export const createDiffPrompt = (
   file: File,
   fileDiff: string,
-  prDetails: PRDetails
 ): string => {
   return `
   ****(scenario 1)**** 
   File name "${file.to}" \n
-  Pull request title: ${prDetails.title} \n
-  Pull request description: 
-  ---
-  ${prDetails.description}
-  ---
-  
+
   Git diff to review:
   
   \`\`\`diff
@@ -69,9 +90,9 @@ export const processChunk = (chunk: Chunk): string => {
   return `
   ${chunk.content}
   ${chunk.changes
-  // @ts-expect-error - ln and ln2 exists where needed
-  .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
-  .join("\n")}
+    // @ts-expect-error - ln and ln2 exists where needed
+    .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
+    .join("\n")}
   `;
 };
 
@@ -128,11 +149,15 @@ export const getCommand = (body: string) => {
 export const generateCommandDocs = (): string => {
   let docs = "";
   docs += "### Commands to use in PR description\n";
-  for (const [command, description] of Object.entries(commandDescriptionsForPRDescription)) {
+  for (const [command, description] of Object.entries(
+    commandDescriptionsForPRDescription
+  )) {
     docs += `- **\`${command}\`**: ${description}\n`;
   }
   docs += "### Commands to use in PR comments\n";
-  for (const [command, description] of Object.entries(commandDescriptionsForComment)) {
+  for (const [command, description] of Object.entries(
+    commandDescriptionsForComment
+  )) {
     docs += `- **\`${command}\`**: ${description}\n`;
   }
   return docs;

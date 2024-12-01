@@ -8,11 +8,15 @@ import { IncomingMessage } from "http";
 import { appdirectAiBaseUrl } from "./config.js";
 import { Logger } from "probot";
 
-export const getResponseForPrompt = async (
+export const getResponseForPrompt = async ({
+  chatId,
+  prompt,
+  logger,
+}:{
   chatId: string,
   prompt: string,
   logger: Logger
-): Promise<string> => {
+}): Promise<string> => {
   const httpResponse = await axios.request(
     createConfig({
       url: `${appdirectAiBaseUrl}/chats/${chatId}`,

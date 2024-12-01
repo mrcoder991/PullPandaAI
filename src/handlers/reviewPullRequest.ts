@@ -9,6 +9,10 @@ import {
 } from "../utils/postReviewComments.js";
 import { Logger } from "probot";
 import { Octokit } from "@octokit/rest";
+import { getJiraId, prepareJiraDetails } from "../utils/jiraUtils.js";
+import { codeReviewerAiId } from "../utils/config.js";
+import { getResponseForPrompt } from "../utils/getResponseForPrompt.js";
+import { createContextPrompt } from "../utils/commonUtils.js";
 
 export const reviewPullRequest = async ({
   prDetails,
@@ -25,7 +29,8 @@ export const reviewPullRequest = async ({
     postComment({
       octokit,
       prDetails,
-      comment: "Hey! 🐼 I see you've chosen to skip the review by adding the command in the description. I'll step aside for this PR. Happy coding! 🚀"
+      comment:
+        "Hey! 🐼 I see you've chosen to skip the review. I'll step aside for this PR. Happy coding! 🚀",
     });
     return;
   }
@@ -44,11 +49,22 @@ export const reviewPullRequest = async ({
 
   if (diff) {
     try {
-      const chatId = await createChat(logger);
+      let jiraDetails = "";
+      const jiraId = getJiraId(prDetails);
+      if (jiraId && jiraId.length > 0) {
+        jiraDetails = await prepareJiraDetails({ jiraId: jiraId[0], logger });
+      }
+      const chatId = await createChat({ aiId: codeReviewerAiId, logger });
       logger.info(`Using chatId: ${chatId} For - ${prDetails.html_url}`);
+      // Sending Jira and PR details to chat for context
+      await getResponseForPrompt({
+        prompt: createContextPrompt({ jiraDetails, prDetails }),
+        chatId,
+        logger,
+      });
+
       reviewComments = await analyzeCode({
         parsedDiff,
-        prDetails,
         chatId,
         logger: logger,
       });
