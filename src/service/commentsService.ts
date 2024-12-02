@@ -16,6 +16,7 @@ export const processCommandsInComment = async ({
   if (!config.enabled) return;
 
   if (context.payload.comment.user.type === "Bot") {
+    context.log.info("Ignoring comment from bot");
     return;
   }
 
@@ -50,6 +51,7 @@ export const processCommandsInComment = async ({
       context.log.info(
         `Command "${command}" processed successfully: flag: ${flag}`
       );
+      return;
     }
   }
   context.log.info(`No valid command found in comment: ${commentBody}`);

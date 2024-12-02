@@ -2,6 +2,7 @@ import { Octokit } from "@octokit/rest";
 import { getReviewComments } from "../utils/getReviewComments.js";
 import { PRDetails } from "../types/index.js";
 import { postComment } from "../utils/postReviewComments.js";
+import { appName } from "../constants.js";
 
 export const deleteReviewComments = async ({
   octokit,
@@ -16,7 +17,7 @@ export const deleteReviewComments = async ({
   });
 
   for (const comment of comments) {
-    if (comment.user.login === "pullpanda-ai[bot]") {
+    if (comment.user.login === appName) {
       await octokit.rest.pulls.deleteReviewComment({
         owner: prDetails.owner,
         repo: prDetails.repo,
