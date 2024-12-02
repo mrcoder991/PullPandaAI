@@ -12,6 +12,8 @@ export const PULLPANDA_CONFIG_FILE = "pullpanda.yml";
 
 export const botMentions = ["@pullpandaai", "@pullpanda"];
 
+export const appName = "pullpanda-ai[bot]"
+
 // regex patterns to ignore
 export const ignoreFiles = [
   "package-lock.json",
