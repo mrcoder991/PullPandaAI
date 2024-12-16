@@ -36,6 +36,7 @@ export const reviewCodeAndPostComments = async ({
       repoDetails,
       octokit: context.octokit as any,
       logger: context.log,
+      allowedBranches: config.reviews.allowedBranches,
     })
   ) {
     return;

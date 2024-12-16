@@ -9,17 +9,30 @@ export const shouldReturn = ({
   repoDetails,
   octokit,
   logger,
+  allowedBranches,
 }: {
   readyForReview: boolean;
   prDetails: PRDetails;
   repoDetails: RepoDetails;
   octokit: Octokit;
   logger: Logger;
+  allowedBranches: string[];
 }): boolean => {
   const prBranch = prDetails.baseref;
   const defaultRepoBranch = repoDetails.default_branch;
+
+  // Continue review if PR is against allowed branches
+  if (allowedBranches.includes(prBranch)) {
+    logger.info("PR is not against default branch. but against allowed branches. Continuing review...");
+    return false;
+  }
+
   if (readyForReview) {
-    postComment({octokit, prDetails, comment: "🐼 Continuing With the review..."});
+    postComment({
+      octokit,
+      prDetails,
+      comment: "🐼 Continuing With the review...",
+    });
     return false;
   }
 
@@ -29,7 +42,8 @@ export const shouldReturn = ({
     postComment({
       octokit,
       prDetails,
-      comment: "Hey! 👋 I see this PR is a draft, so I'll wait until you're ready. 🐼 Just mark it `Ready for Review` when you're good to go! 🚀"
+      comment:
+        "Hey! 👋 I see this PR is a draft, so I'll wait until you're ready. 🐼 Just mark it `Ready for Review` when you're good to go! 🚀",
     });
     return true;
   }
@@ -45,7 +59,7 @@ export const shouldReturn = ({
     postComment({
       octokit,
       prDetails,
-      comment: `Hey! 🐼 This PR looks like a \`${defaultRepoBranch}\` to \`${prBranch}\` merge for **Production Deployment**, so I'll skip the review. Wishing you a smooth release! 🚀✨`
+      comment: `Hey! 🐼 This PR looks like a \`${defaultRepoBranch}\` to \`${prBranch}\` merge for **Production Deployment**, so I'll skip the review. Wishing you a smooth release! 🚀✨`,
     });
     return true;
   }
@@ -56,7 +70,7 @@ export const shouldReturn = ({
     postComment({
       octokit,
       prDetails,
-      comment: `Hey! 🐼 I noticed this PR isn't targeting the default \`${defaultRepoBranch}\` branch, so I'll skip the review. 👍`
+      comment: `Hey! 🐼 I noticed this PR isn't targeting the default \`${defaultRepoBranch}\` branch, so I'll skip the review. 👍`,
     });
     return true;
   }

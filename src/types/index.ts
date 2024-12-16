@@ -73,4 +73,5 @@ export interface PullPandaConfig {
 
 export interface ReviewsConfig {
   level: CommandFlag;
+  allowedBranches: string[];
 }

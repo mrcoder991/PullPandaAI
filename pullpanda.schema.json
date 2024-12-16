@@ -30,6 +30,13 @@
               "description": "Skip the review for the pull request."
             }
           ]
+        },
+        "allowedBranches": {
+          "type": "array",
+          "description": "Branches that are allowed to be reviewed (other than default branch)",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": ["level"],

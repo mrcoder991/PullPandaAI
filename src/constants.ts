@@ -4,7 +4,8 @@ export const defaultPullPandaConfig: PullPandaConfig = {
   // turn this off when globally enabled
   enabled: true,
   reviews: {
-    level: CommandFlag.FullReviewEnabled
+    level: CommandFlag.FullReviewEnabled,
+    allowedBranches: [],
   }
 }
 
